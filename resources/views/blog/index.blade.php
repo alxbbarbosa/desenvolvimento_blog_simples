@@ -26,7 +26,7 @@
     </header>
 
     <div class="entry-content">
-        <p>{!! isset($article->resume) ? substr($article->body, 0, strpos($article->resume, ' ', 300 ) - 1) : '' !!}</p>
+        <p>{!! isset($article->resume) ? substr($article->resume, 0, strpos($article->resume, ' ', 300 ) - 1) : '' !!}</p>
         <P>
             <a href="{{ route('blog.article',['id' => $article->id])  }}" title="">CONTINUE LENDO ..</a>
         </P>

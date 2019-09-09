@@ -44,11 +44,11 @@
 ================================================== -->
 <div id="comments">
 
-    <h3>5 Comments</h3>
+    <h3>{{ $article->comments->count() }} Comments</h3>
 
     <!-- commentlist -->
     <ol class="commentlist">
-
+        @forelse($article->comments as $comment)
         <li class="depth-1">
 
             <div class="avatar">
@@ -58,23 +58,29 @@
             <div class="comment-content">
 
                 <div class="comment-info">
-                    <cite>Itachi Uchiha</cite>
+                    <cite>{{ $comment->name }}</cite>
 
                     <div class="comment-meta">
-                        <time class="comment-time" datetime="2014-07-12T23:05">Jul 12, 2014 @ 23:05</time>
+                        <time class="comment-time" datetime="{{ (new DateTime($comment->created_at))->format('Y-m-d H:i:s') }}">{{ (new DateTime($comment->created_at))->format('d-m-Y H:i') }}</time>
                         <span class="sep">/</span><a class="reply" href="#">Reply</a>
                     </div>
                 </div>
 
                 <div class="comment-text">
-                    <p>Adhuc quaerendum est ne, vis ut harum tantas noluisse, id suas iisque mei. Nec te inani ponderum vulputate,
-                        facilisi expetenda has et. Iudico dictas scriptorem an vim, ei alia mentitum est, ne has voluptua praesent.</p>
+                    <p>{{ $comment->body }}</p>
                 </div>
 
             </div>
 
         </li>
+        @empty
+            
+        @endforelse
 
+
+
+<!-- Working progress -->
+<!--
         <li class="thread-alt depth-1">
 
             <div class="avatar">
@@ -187,7 +193,7 @@
             </div>
 
         </li>
-
+    -->
     </ol> <!-- Commentlist End -->
 
 
@@ -197,33 +203,40 @@
         <h3>Deixe um comentário</h3>
 
         <!-- form -->
-        <form name="contactForm" id="contactForm" method="post" action="">
+        <!-- <form name="contactForm" id="contactForm" method="post" action=""> -->
+            {!! Form::open(['route' => 'comments.add']) !!}
             <fieldset>
-
+                 
+                {!! Form::hidden('article_id', $article->id) !!}
+                
                 <div class="group">
-                    <label for="cName">Nome <span class="required">*</span></label>
-                    <input name="cName" type="text" id="cName" size="35" value="" />
+                    <label for="name">Nome <span class="required">*</span></label>
+                    <input name="name" type="text" id="name" size="35" value="" />
                 </div>
 
                 <div class="group">
-                    <label for="cEmail">Email <span class="required">*</span></label>
-                    <input name="cEmail" type="text" id="cEmail" size="35" value="" />
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input name="email" type="text" id="email" size="35" value="" />
                 </div>
 
                 <div class="group">
-                    <label for="cWebsite">Website</label>
-                    <input name="cWebsite" type="text" id="cWebsite" size="35" value="" />
+                    <label for="website">Website</label>
+                    <input name="website" type="text" id="website" size="35" value="" />
                 </div>
 
                 <div class="message group">
-                    <label  for="cMessage">Mensagem <span class="required">*</span></label>
-                    <textarea name="cMessage"  id="cMessage" rows="10" cols="50" ></textarea>
+                    <label  for="body">Mensagem <span class="required">*</span></label>
+                    <textarea name="body" id="body" rows="10" cols="50" ></textarea>
                 </div>
 
                 <button type="submit" class="submit">Enviar</button>
 
             </fieldset>
-        </form> <!-- Form End -->
+        </form>
+         
+        {!! Form::close() !!}
+        
+        <!-- Form End -->
 
     </div> <!-- Respond End -->
 

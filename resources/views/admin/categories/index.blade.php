@@ -2,7 +2,7 @@
 @section('title', 'Cadastro::categorias')
 
 @section('content_header')
-<h1><strong>Cadastro de categrias</strong> :: listagem</h1>
+<h1><strong>Cadastro de categorias</strong> :: listagem</h1>
 @include('admin._partials.breadcrumbs', ['breadcrumbs' => [
         ['nome' => 'Listar categorias', 'rota' => route('categories.index'), 'ativo' => true]
     ]

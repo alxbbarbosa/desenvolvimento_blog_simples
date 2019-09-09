@@ -23,6 +23,8 @@ Route::any('articles/search', 'ArticleController@search')->name('articles.search
 Route::resource('articles', 'ArticleController');
 
 Route::any('comments/search', 'CommentController@search')->name('comments.search');
+Route::post('comments/add', 'CommentController@add')->name('comments.add');
+Route::post('comments/reply', 'CommentController@reply')->name('comments.reply');
 Route::resource('comments', 'CommentController');
 
 Route::any('pictures/search', 'PictureController@search')->name('pictures.search');

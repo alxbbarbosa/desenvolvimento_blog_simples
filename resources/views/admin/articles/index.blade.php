@@ -22,7 +22,7 @@
                 <thead>
                     <tr>
                         <th scope="col">Artigo</th>
-                        <th scope="col" style="width: 100px;">@can('article-create')<a href="{{ route('articles.create') }}" class="btn btn-primary btn-sm"><i class='fas fa-fw fa-plus'></i>&nbsp;&nbsp;Cadastrar novo</a>@endcan</th>
+                        <th scope="col" style="width: 200px;">@can('article-create')<a href="{{ route('articles.create') }}" class="btn btn-primary btn-sm"><i class='fas fa-fw fa-plus'></i>&nbsp;&nbsp;Cadastrar novo</a>@endcan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,7 +30,16 @@
                     <tr>
                         <td scope="row"><a href="{{ route('articles.show', ['id' => $recordSet->id]) }}">{{ $recordSet->title }}</a></td>
                         <td scope="row">
-                            <a href="{{ route('articles.show', ['id' => $recordSet->id]) }}" class="btn btn-warning btn-sm"><i class="fas fa-fw fa-eye"></i> Detalhes</a>
+                            @can('article-edit')
+                                <a href="{{ route('articles.edit', ['id' => $recordSet->id]) }}" class="btn btn-primary btn-sm"><i class="fas fa-fw fa-edit"></i> Editar</a>
+                            @endcan
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            @can('article-delete')
+                                {!! Form::open(['method' => 'delete', 'route' => ['articles.destroy', $recordSet->id], "style" => "display: inline-block" ]) !!}
+                                @csrf
+                                {!! Form::button("<i class='fas fa-fw fa-trash'></i> Excluir", ['type' => 'submit', 'class' => 'btn btn-danger btn-sm']) !!}
+                                {!! Form::close() !!}
+                            @endcan
                         </td>
                     </tr>
                     @empty

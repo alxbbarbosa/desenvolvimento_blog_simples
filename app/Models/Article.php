@@ -33,6 +33,6 @@ class Article extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->morphMany(Comment::class, 'commentable')->whereNull('parent_id');
     }
 }

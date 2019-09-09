@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comment;
+use App\Models\Article;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreCommentFormRequest;
 use App\Http\Requests\UpdateCommentFormRequest;
@@ -25,6 +26,12 @@ class CommentController extends Controller
 
     public function __construct(Comment $model)
     {
+        $this->middleware('permission:comment-list');
+        $this->middleware('permission:comment-create',
+            ['only' => ['create', 'store']]);
+        $this->middleware('permission:comment-edit',
+            ['only' => ['edit', 'update']]);
+        $this->middleware('permission:comment-delete', ['only' => ['destroy']]);
         $this->middleware('auth');
         $this->model = $model;
     }
@@ -43,8 +50,10 @@ class CommentController extends Controller
      */
     public function index(Request $request)
     {
-        $list = $this->model->paginate(8);
-
+        $list = $this->model->with('article')->whereHas('article',
+                function($query) {
+                $query->where('user_id', auth()->user()->id);
+            })->paginate(8);
         return view('admin.comments.index', compact('list'));
     }
 
@@ -55,7 +64,53 @@ class CommentController extends Controller
      */
     public function create()
     {
-        return view('admin.comments.create');
+        $articles = Article::all()->pluck('title', 'id');
+        return view('admin.comments.create', compact('articles'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \App\Http\Requests\StoreCommentFormRequest $request
+     * @return \Illuminate\Http\Response
+     */
+    public function add(StoreCommentFormRequest $request)
+    {
+        $data               = $request->only('article_id', 'name', 'picture',
+            'homepage', 'email', 'body');
+        $data['ip_address'] = $request->ip();
+        $approved           = $request->has('approved') ? true : false;
+        $data               += ['approved' => $approved];
+        $this->model->fill($data);
+        $this->model->user()->associate($request->user());
+        $article            = Article::find($request->get('article_id'));
+        $result             = $article->comments()->save($this->model);
+
+        if ($result) {
+            return redirect()->back();
+        }
+        return back()
+                ->withErrors(['Falhou ao cadastrar item'])
+                ->withInput($request->input());
+    }
+
+    public function reply(Request $request)
+    {
+        $reply             = new Comment();
+        $reply->body       = $request->get('body');
+        $reply->ip_address = $request->ip();
+        /**
+         *
+         * Necessário fazer cadastro para continuar
+         * Usuário precisa se cadastrar para responder
+         * 
+         */
+        $reply->user()->associate($request->user());
+        $reply->parent_id  = $request->get('comment_id');
+        $article           = Article::find($request->get('article_id'));
+        $article->comments()->save($reply);
+
+        return back();
     }
 
     /**
@@ -66,12 +121,26 @@ class CommentController extends Controller
      */
     public function store(StoreCommentFormRequest $request)
     {
-        $data   = $request->only('category');
-        $result = $this->model->fill($data)->save();
+        /**
+         * 
+         * Necessário fazer modificações para usuário se cadastrar primeiro
+         * E-mail, site, nome com função de usuário visitante
+         * 
+         */
+        $data               = $request->only('name', 'picture', 'homepage',
+            'email', 'body');
+        $data['ip_address'] = $request->ip();
+        $approved           = $request->has('approved') ? true : false;
+        $data               += ['approved' => $approved];
+        //$result             = $this->model->fill($data)->save();
+        $this->model->fill($data);
+        $this->model->user()->associate($request->user());
+        $article            = Article::find($request->get('article_id'));
+        $result             = $article->comments()->save($comment);
 
         if ($result) {
             return redirect()
-                    ->route('admin.comments.index')
+                    ->route('comments.index')
                     ->withSuccess('Item cadastrado com êxito');
         }
         return back()
@@ -87,9 +156,9 @@ class CommentController extends Controller
      */
     public function show($id)
     {
-        $result = $this->model->findOrFail($id);
+        $recordSet = $this->model->with('article')->findOrFail($id);
 
-        return view('admin.comments.show', compact('result'));
+        return view('admin.comments.show', compact('recordSet'));
     }
 
     /**
@@ -100,9 +169,10 @@ class CommentController extends Controller
      */
     public function edit($id)
     {
-        $result = $this->model->findOrFail($id);
+        $articles  = Article::all()->pluck('title', 'id');
+        $recordSet = $this->model->with('article')->findOrFail($id);
 
-        return view('admin.comments.edit', compact('result'));
+        return view('admin.comments.edit', compact('recordSet', 'articles'));
     }
 
     /**
@@ -114,13 +184,17 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentFormRequest $request, $id)
     {
-        $recordSet = $this->model->findOrFail($id);
-        $data      = $request->only('category');
-        $result    = $recordSet->fill($data)->save();
+        $recordSet          = $this->model->findOrFail($id);
+        $data               = $request->only('article_id', 'name', 'picture',
+            'homepage', 'email', 'body');
+        $data['ip_address'] = $request->ip();
+        $approved           = $request->has('approved') ? true : false;
+        $data               += ['approved' => $approved];
+        $result             = $recordSet->fill($data)->save();
 
         if ($result) {
             return redirect()
-                    ->route('admin.comments.index')
+                    ->route('comments.index')
                     ->withSuccess('Item atualizado com êxito');
         }
         return back()
@@ -140,7 +214,7 @@ class CommentController extends Controller
         if ($recordSet) {
             if ($recordSet->delete()) {
                 return redirect()
-                        ->route('admin.comments.index')
+                        ->route('comments.index')
                         ->withSuccess('Item excluído com êxito');
             }
         }

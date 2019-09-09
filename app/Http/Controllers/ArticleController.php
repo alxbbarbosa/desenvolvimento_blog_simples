@@ -94,15 +94,16 @@ class ArticleController extends Controller
      */
     public function store(StoreArticleFormRequest $request)
     {
-        dd($request->all());
         $data            = $request->only('title', 'category_id', 'resume');
         $data['user_id'] = auth()->user()->id;
         $data['body']    = clean($request->get('body'));
         $ativo           = $request->has('active') ? true : false;
         $data            += ['active' => $ativo];
-        $tags            = explode(",", $request->tags);
+        $tags            = array_filter(explode(",", $request->tags ?? ''));
         $result          = $this->model->fill($data)->save();
-        $result->tag($tags);
+        if (count($tags) > 0) {
+            $recordSet->tag($tags);
+        }
 
         if ($result) {
             return redirect()
@@ -153,9 +154,11 @@ class ArticleController extends Controller
         $data['body'] = clean($request->get('body'));
         $ativo        = $request->has('active') ? true : false;
         $data         += ['active' => $ativo];
-        $tags         = explode(",", $request->tags);
+        $tags         = array_filter(explode(",", $request->tags ?? ''));
         $result       = $recordSet->fill($data)->save();
-        $result->tag($tags);
+        if (count($tags) > 0) {
+            $recordSet->tag($tags);
+        }
 
         if ($result) {
             return redirect()
@@ -179,7 +182,7 @@ class ArticleController extends Controller
         if ($recordSet) {
             if ($recordSet->delete()) {
                 return redirect()
-                        ->route('admin.articles.index')
+                        ->route('articles.index')
                         ->withSuccess('Item excluído com êxito');
             }
         }

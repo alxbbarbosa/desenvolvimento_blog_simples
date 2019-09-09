@@ -33,7 +33,7 @@ class BlogController extends Controller
             ->where('a.user_id', auth()->user()->id)
             ->get();
 
-        $article = Article::with('category', 'user')->findOrFail($id);
+        $article = Article::with('category', 'user', 'comments')->findOrFail($id);
         return view('blog.single', compact('title', 'sub_title','article', 'categories'));
     }
 }
