@@ -2,8 +2,22 @@ require('./bootstrap');
 
 window.Vue = require('vue');
 
-//Vue.component('teste-component', require('./components/articles/TesteComponent.vue').default);
-import VueTagsInput from '@johmun/vue-tags-input'
+import FlashMessage from '@smartweb/vue-flash-message';
+Vue.use(FlashMessage);
+
+import VeeValidate from 'vee-validate'
+Vue.use(VeeValidate)
+
+/*
+Vue.component('comments-manager', require('./components/comments/CommentsManager.vue').default)
+Vue.component('<commen></commen>t-list', require('./components/comments/CommentList.vue').default)
+Vue.component('form-comment', require('./components/comments/FormComment.vue').default)*/
+Vue.component('world-map', require('./pages/World.vue').default)
+import VueTagsInput from '@johmun/vue-tags-input';
+import TagInputComponent from './components/articles/TagInputComponent.vue'
+
+import ActivityGraph from './components/Graph/ActivityGraph.vue'
+Vue.component('activity-graph', ActivityGraph);
 
 import Editor from '@tinymce/tinymce-vue'
 import 'tinymce'
@@ -103,13 +117,28 @@ const app = new Vue({
             body: "",
             tag: '',
             tags: [],
+            tagsStored: []
         }
     },
     components: {
         'editor': Editor,
-        VueTagsInput
+        VueTagsInput,
+        TagInputComponent,
+    },
+    watch: {
+        tags: function (val, old) {
+            let element = document.getElementById('tags')
+            element.value = JSON.stringify(this.tags)
+        }
     },
     methods: {
-        //
+        sayHello(event, url) {
+            axios.post(url).then(res => {
+                console.log(res)
+            }).catch(err => {
+                console.log(err)
+            })
+
+        }
     }
 });

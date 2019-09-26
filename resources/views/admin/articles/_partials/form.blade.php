@@ -64,17 +64,15 @@
     </div>
 </div>
 <div class="form-group">
-    <input type="hidden" v-model="tag" v-bind:value="tag" name="tags" />
     <div>
-        <vue-tags-input v-model="tag" :tags="tags" @tags-changed="newTags => tags = newTags" />
+        <vue-tags-input v-model="tag" :tags="tags" @tags-changed="newTags => tags = newTags"></vue-tags-input>
+        <input id="tags" name="tags" type="hidden" />
     </div>
 
     @if(isset($recordSet))
-        <strong>Tag:</strong>
-            @forelse($recordSet->tags as $tag)
-                <label class="label label-info">{{ $tag->name }}</label>
-            @empty
-            @endforelse
+    <br />
+        <strong>Tags:</strong>
+        <tag-input-component :route="'{{ route('article.tags', $recordSet->id) }}'"></tag-input-component>
     @endif
 </div>
 <div class="form-group">

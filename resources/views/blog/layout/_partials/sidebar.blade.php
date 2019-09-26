@@ -3,9 +3,9 @@
         <h3>Search</h3>
         <form action="#">
 
-            <input type="text" value="Procurar ..." onblur="if (this.value == '') {
-                                        this.value = 'Search here...';
-                                    }" onfocus="if (this.value == 'Search here...') {
+            <input type="text" value="Procurar..." onblur="if (this.value == '') {
+                                        this.value = 'Procurar...';
+                                    }" onfocus="if (this.value == 'Procurar...') {
                                                 this.value = '';
                                             }" class="text-search">
             <input type="submit" value="" class="submit-search">
@@ -28,28 +28,29 @@
         @include('blog.layout._partials.widget_text')
     @endif
 
+    @if(isset($article))
     <div class="widget widget_tags">
         <h3>Post Tags.</h3>
-
         <div class="tagcloud group">
-            <a href="#">Corporate</a>
-            <a href="#">Onepage</a>
-            <a href="#">Agency</a>
-            <a href="#">Multipurpose</a>
-            <a href="#">Blog</a>
-            <a href="#">Landing Page</a>
-            <a href="#">Resume</a>
+            @forelse($article->tagNames() as $tag)
+            <a href="{{ route('blog.article',['id' => $article->id])  }}">{{ $tag }}</a>
+            @empty
+                
+            @endempty
         </div>
 
     </div>
+    @endif
 
     <div class="widget widget_popular">
-        <h3>Popular Post.</h3>
+        <h3>Últimos artigos</h3>
 
         <ul class="link-list">
-            <li><a href="#">Sint cillum consectetur voluptate.</a></li>
-            <li><a href="#">Lorem ipsum Ullamco commodo.</a></li>
-            <li><a href="#">Fugiat minim eiusmod do.</a></li>
+            @forelse($last_articles as $la)
+            <li><a href="{{ route('blog.article',['id' => $la->id])  }}">{{ (new DateTime($la->created_at))->format('d/m/Y') }} - {{ $la->title }}</a></li>
+            @empty
+                
+            @endforelse
         </ul>
 
     </div>

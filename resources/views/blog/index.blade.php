@@ -1,6 +1,10 @@
 @extends('blog.layout.blog')
 
-@section('title', 'Mantenha Simplicidade')
+@section('title', $config->title)
+
+@section('metas')
+<meta name="description" content="Blog: {{ $config->title }}@if(strlen($config->sub_title) > 0), {{ $config->sub_title }}@endif" />
+@endsection
 
 @section('content')
 <!-- -->

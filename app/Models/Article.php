@@ -31,8 +31,14 @@ class Article extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function approvedComments()
+    {
+        return $this->hasMany(Comment::class)
+            ->whereNull('parent_id')
+            ->where('approved', true);
+    }
     public function comments()
     {
-        return $this->morphMany(Comment::class, 'commentable')->whereNull('parent_id');
+        return $this->hasMany(Comment::class);
     }
 }

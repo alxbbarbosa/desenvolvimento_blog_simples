@@ -10,7 +10,7 @@ class Comment extends Model
 {
     protected $fillable = [
         'approved',
-        'user_id',
+        //'user_id',
         'article_id',
         'parent_id',
         'name',
@@ -19,18 +19,19 @@ class Comment extends Model
         'email',
         'ip_address',
         'body',
-        'commentable_id',
-        'commentable_type'
+        'likes',
+        'deslikes'
     ];
 
+    /*
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
+    }*/
 
     public function article()
     {
-        return $this->belongsTo(Article::class);
+        return $this->belongsTo(Article::class, 'article_id');
     }
 
     public function comment()
@@ -41,5 +42,10 @@ class Comment extends Model
     public function replies()
     {
         return $this->hasMany(Comment::class, 'parent_id');
+    }
+
+    public function approvedReplies()
+    {
+        return $this->hasMany(Comment::class, 'parent_id')->where('approved', true);
     }
 }

@@ -126,12 +126,12 @@ return [
         ['header' => 'account_settings'],
         [
             'text' => 'Perfil',
-            'url' => 'users/1',
+            'url' => 'profile/',
             'icon' => 'fas fa-fw fa-user',
         ],
         [
             'text' => 'change_password',
-            'url' => 'admin/settings',
+            'url' => 'password/',
             'icon' => 'fas fa-fw fa-lock',
         ],
         [
@@ -142,11 +142,19 @@ return [
                     'text' => 'usuários',
                     'url' => 'users/',
                     'icon' => 'fas fa-fw fa-users',
+                    'can' => 'user-list',
                 ],
                 [
                     'text' => 'funções de usuário',
                     'url' => 'roles/',
                     'icon' => 'fas fa-fw fa-user-tag',
+                    'can' => 'role-list',
+                ],
+                [
+                    'text' => 'Configurações Gerais',
+                    'url' => 'config/',
+                    'icon' => 'fas fa-fw fa-cogs',
+                     'can' => 'config-edit',
                 ],
             ]
         ],
@@ -159,16 +167,19 @@ return [
                     'text' => 'Categorias',
                     'icon' => 'fas fa-fw fa-folder',
                     'url' => 'categories',
+                    'can' => 'category-list',
                 ],
                 [
                     'text' => 'Artigos',
                     'icon' => 'fas fa-fw fa-file',
                     'url' => '/articles',
+                    'can' => 'article-list',
                 ],
                 [
                     'text' => 'Comentários',
                     'icon' => 'fas fa-fw fa-users',
                     'url' => '/comments',
+                    'can' => 'comment-list',
                 ],
             ],
         ],

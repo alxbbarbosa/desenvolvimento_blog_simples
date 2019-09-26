@@ -70,7 +70,9 @@ class ArticleController extends Controller
      */
     public function index(Request $request)
     {
-        $list = $this->model->paginate(8);
+        $list = $this->model
+            ->where('user_id', auth()->user()->id)
+            ->paginate(8);
 
         return view('admin.articles.index', compact('list'));
     }
@@ -94,20 +96,26 @@ class ArticleController extends Controller
      */
     public function store(StoreArticleFormRequest $request)
     {
+        if (!is_null($request->tags)) {
+            $tags = array_map(function($el) {
+                return ((array) $el)['text'];
+            }, json_decode($request->tags));
+        } else {
+            $tags = [];
+        }
         $data            = $request->only('title', 'category_id', 'resume');
         $data['user_id'] = auth()->user()->id;
         $data['body']    = clean($request->get('body'));
         $ativo           = $request->has('active') ? true : false;
         $data            += ['active' => $ativo];
-        $tags            = array_filter(explode(",", $request->tags ?? ''));
         $result          = $this->model->fill($data)->save();
         if (count($tags) > 0) {
-            $recordSet->tag($tags);
+            $this->model->tag($tags);
         }
 
         if ($result) {
             return redirect()
-                    ->route('articles.index')
+                    ->route('articles.edit', $this->model->id)
                     ->withSuccess('Item cadastrado com êxito');
         }
         return back()
@@ -141,6 +149,40 @@ class ArticleController extends Controller
     }
 
     /**
+     * Listar todas tags do artigo
+     * @param type $id
+     * @return type
+     */
+    public function getTagsFromArticle($id)
+    {
+        $tags = Article::find(1)->existingTags()->toArray();
+        if ($tags) {
+            $result = array_map(function($e) use($id) {
+                return $e + ['route' => route('article.tag.delete',
+                        ['article_id' => $id, 'tag' => $e['name']])];
+            }, $tags);
+        } else {
+            $result = [];
+        }
+        return response()->json($result);
+    }
+
+    /**
+     * Eliminar a tag do artigo
+     * @param type $tag
+     * @param type $article_id
+     * @return type
+     */
+    public function deleteTag($article_id, $tag)
+    {
+        $article = Article::find($article_id);
+        if ($article) {
+            $article->untag($tag);
+        }
+        return response()->json(['article_id' => $article_id, 'tag' => $tag]);
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdateArticleFormRequest $request
@@ -149,12 +191,18 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticleFormRequest $request, $id)
     {
+        if (!is_null($request->tags)) {
+            $tags = array_map(function($el) {
+                return ((array) $el)['text'];
+            }, json_decode($request->tags));
+        } else {
+            $tags = [];
+        }
         $recordSet    = $this->model->findOrFail($id);
         $data         = $request->only('title', 'category_id', 'resume');
         $data['body'] = clean($request->get('body'));
         $ativo        = $request->has('active') ? true : false;
         $data         += ['active' => $ativo];
-        $tags         = array_filter(explode(",", $request->tags ?? ''));
         $result       = $recordSet->fill($data)->save();
         if (count($tags) > 0) {
             $recordSet->tag($tags);
@@ -162,7 +210,7 @@ class ArticleController extends Controller
 
         if ($result) {
             return redirect()
-                    ->route('articles.index')
+                    ->back()
                     ->withSuccess('Item atualizado com êxito');
         }
         return back()

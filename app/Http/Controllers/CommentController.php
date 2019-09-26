@@ -26,13 +26,14 @@ class CommentController extends Controller
 
     public function __construct(Comment $model)
     {
-        $this->middleware('permission:comment-list');
+        $this->middleware('permission:comment-list',
+            ['except' => ['addComment', 'replyComment']]);
         $this->middleware('permission:comment-create',
             ['only' => ['create', 'store']]);
         $this->middleware('permission:comment-edit',
             ['only' => ['edit', 'update']]);
         $this->middleware('permission:comment-delete', ['only' => ['destroy']]);
-        $this->middleware('auth');
+
         $this->model = $model;
     }
 
@@ -74,18 +75,15 @@ class CommentController extends Controller
      * @param  \App\Http\Requests\StoreCommentFormRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function add(StoreCommentFormRequest $request)
+    public function addComment(Request $request)
     {
-        $data               = $request->only('article_id', 'name', 'picture',
-            'homepage', 'email', 'body');
+        $data               = $request->only('article_id', 'name',
+            'homepage', 'email', 'body', 'parent_id');
         $data['ip_address'] = $request->ip();
-        $approved           = $request->has('approved') ? true : false;
-        $data               += ['approved' => $approved];
         $this->model->fill($data);
-        $this->model->user()->associate($request->user());
-        $article            = Article::find($request->get('article_id'));
-        $result             = $article->comments()->save($this->model);
-
+        $article            = Article::find($data['article_id']);
+        $this->model->article()->associate($article);
+        $result             = $this->model->save();
         if ($result) {
             return redirect()->back();
         }
@@ -94,24 +92,6 @@ class CommentController extends Controller
                 ->withInput($request->input());
     }
 
-    public function reply(Request $request)
-    {
-        $reply             = new Comment();
-        $reply->body       = $request->get('body');
-        $reply->ip_address = $request->ip();
-        /**
-         *
-         * Necessário fazer cadastro para continuar
-         * Usuário precisa se cadastrar para responder
-         * 
-         */
-        $reply->user()->associate($request->user());
-        $reply->parent_id  = $request->get('comment_id');
-        $article           = Article::find($request->get('article_id'));
-        $article->comments()->save($reply);
-
-        return back();
-    }
 
     /**
      * Store a newly created resource in storage.

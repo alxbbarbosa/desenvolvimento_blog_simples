@@ -1,42 +1,34 @@
 <!DOCTYPE html>
 <html class="no-js" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
-
-        <!--- Basic Page Needs
-        ================================================== -->
+        <!--- Basic Page Needs -->
         <meta charset="utf-8">
-        <title>Mantenha Simples.</title>
-        <meta name="description" content="">
-        <meta name="author" content="">
-
-        <!-- mobile specific metas
-   ================================================== -->
+        <title>{{ $config->title }}</title>
+        <meta name="_token" content="{{ csrf_token() }}">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        @yield('metas')
+        <!-- mobile specific metas -->
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-        <!-- CSS
-         ================================================== -->
+        <!-- CSS -->
         <link rel="stylesheet" href="{{ asset('css/default.css') }}">
         <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
         <link rel="stylesheet" href="{{ asset('css/media-queries.css') }}">
 
-        <!-- Script
-        ================================================== -->
+        <!-- Script -->
         <script src="{{ asset('js/modernizr.js') }}"></script>
-
-        <!-- Favicons
-             ================================================== -->
+        
+        <!-- Favicons -->
         <link rel="shortcut icon" href="{{ asset('favicon.png') }}" >
 
     </head>
 
     <body>
-
         <!-- Header-->
         @include('blog.layout._partials.header')
         <!-- Header End -->
 
-        <!-- Content
-        ================================================== -->
+        <!-- Content -->
         <div id="content-wrap">
             <div class="row">
                 <div id="main" class="eight columns">
@@ -55,12 +47,9 @@
         <!-- End Footer-->
 
 
-        <!-- Java Script
-        ================================================== -->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/jquery-1.10.2.min.js"><\/script>')</script>
-        <script type="text/javascript" src="js/jquery-migrate-1.2.1.min.js"></script>
-        <script src="js/main.js"></script>
+        <!-- Java Script -->
+        <script src="{{ asset('js/jquery.min.js') }}"></script>
+        @yield('js')
 
     </body>
 
