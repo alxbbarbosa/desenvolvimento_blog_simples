@@ -1,6 +1,6 @@
 # Blog em Laravel [Working progress]
 
-É um blog construído com Laravel, com paneil de administração e layout fixo
+É um blog construído com Laravel, com panel de administração e layout fixo
 
 ## Getting Started
 
