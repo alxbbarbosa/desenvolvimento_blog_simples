@@ -29,7 +29,7 @@
         "@tinymce/tinymce-vue": "^3.0.1",
         "chart.js": "^2.8.0",
         "jvectormap": "^2.0.4",
-        "tinymce": "^5.0.15",
+        "tinymce": "^5.6.0",
         "vee-validate": "^2.2.15",
         "vue-chartjs": "^3.4.2",
         "vue-tinymce-editor": "^1.6.2"
